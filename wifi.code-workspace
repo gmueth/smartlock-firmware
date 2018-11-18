@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"path": "esp32-GET"
+		},
+		{
+			"path": "esp-POST",
+			"name": "esp-POST"
+		},
+		{
+			"path": "smartlock-esp",
+			"name": "smartlock-esp"
+		}
+	],
+	"settings": {
+		"terminal.integrated.env.linux": {
+			"PATH": "/home/greg/.platformio/penv/bin:/home/greg/.platformio/penv:/home/greg/bin:/home/greg/.local/bin:/home/greg/bin:/home/greg/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+			"PLATFORMIO_CALLER": "vscode"
+		}
+	}
+}
