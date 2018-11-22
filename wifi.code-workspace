@@ -10,6 +10,10 @@
 		{
 			"path": "smartlock-esp",
 			"name": "smartlock-esp"
+		},
+		{
+			"path": "smartlock-atmega",
+			"name": "smartlock-atmega"
 		}
 	],
 	"settings": {
