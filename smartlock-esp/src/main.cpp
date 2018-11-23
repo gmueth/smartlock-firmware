@@ -1,22 +1,24 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
-// #include <ArduinoJson.h>
- 
-
-const char* ssid = "Blips N Chitz";
-const char* password =  "BEER_is_g00d&stuff";
-int counter = 0;
-const int ledPin = 12;
 
 // const char* ssid = "smartlock";
 // const char* password =  "smartlock";
+const char* ssid = "Blips N Chitz";
+const char* password =  "BEER_is_g00d&stuff";
+const int lockOutput = 12;
+const int lockInput = 13;
+volatile bool serverStatus = false;
+volatile bool lockStatus = false;
+volatile bool sendPost = false;
+volatile bool lastGet;
 
 void sendPOST(String input);
 char sendGET();
 
 void setup() {
 
-  pinMode(ledPin, OUTPUT);
+  pinMode(lockOutput, OUTPUT);
+  pinMode(lockInput, INPUT);
  
   Serial.begin(115200);
   delay(1000);
@@ -26,24 +28,47 @@ void setup() {
     Serial.println("Connecting to WiFi..");
     WiFi.begin(ssid, password);
   }
- 
+
   Serial.println("Connected to the WiFi network");
- 
+  sendPOST("{\"userid\": \"5bd603af9dfa7d068ceb70dd\",\"lockid\": \"5bd603af9dfa7d068ceb70dd\",\"status\": false}");
+
 }
 
 void loop() {
 
-
-  if(counter%2 == 0) {
-    // sendPOST("{\"userid\": \"5bd603af9dfa7d068ceb70dd\",\"lockid\": \"5bd603af9dfa7d068ceb70dd\",\"status\": false}");
-  } else {
-    // sendPOST("{\"userid\": \"5bd603af9dfa7d068ceb70dd\",\"lockid\": \"5bd603af9dfa7d068ceb70dd\",\"status\": true}");
-  }
-  counter++;
+  lastGet = serverStatus;
   char status = sendGET();
   Serial.println(status);
-  if(status == 't') digitalWrite(ledPin, HIGH);
-  else digitalWrite(ledPin, LOW);
+  if(status == 't') { 
+    digitalWrite(lockOutput, HIGH);
+    serverStatus = true;
+  } else { 
+    digitalWrite(lockOutput, LOW);
+    serverStatus = false;
+  }
+
+  if(digitalRead(lockInput) == HIGH) {
+    lockStatus = true;
+  } else {
+    lockStatus = false;
+  }
+
+  Serial.println(serverStatus);
+  Serial.println(lockStatus);
+
+  if(serverStatus != lockStatus && lastGet == serverStatus) {
+    sendPost = true;
+  }
+
+  if(sendPost == true && lockStatus == false) {
+    sendPOST("{\"userid\": \"5bd603af9dfa7d068ceb70dd\",\"lockid\": \"5bd603af9dfa7d068ceb70dd\",\"status\": false}");
+    sendPost = false;
+  } 
+  else if (sendPost == true && lockStatus == true) {
+    sendPOST("{\"userid\": \"5bd603af9dfa7d068ceb70dd\",\"lockid\": \"5bd603af9dfa7d068ceb70dd\",\"status\": true}");
+    sendPost = false;
+  }
+
   delay(1000);
 }
 
@@ -97,7 +122,6 @@ char sendGET() {
 
       // Serial.println(httpCode);
       // Serial.println(payload);
-      // Serial.println(payload[43];
     }
 
   else {
