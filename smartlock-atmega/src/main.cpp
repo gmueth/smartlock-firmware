@@ -3,8 +3,8 @@
 
 const int wifiInput = 7;
 const int wifiOutput = 6;
-const int ledPin = 2;
-const int servoPin = 9;
+const int ledPin = 4;
+const int servoPin = 5;
 const int buttonPin = 3;
 volatile bool locked;
 volatile bool waitForPost;

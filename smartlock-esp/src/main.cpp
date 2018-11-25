@@ -1,75 +1,92 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 
-// const char* ssid = "smartlock";
-// const char* password =  "smartlock";
-const char* ssid = "Blips N Chitz";
-const char* password =  "BEER_is_g00d&stuff";
+const char* ssid = "Mhelith";
+const char* password =  "smartlock";
+// const char* ssid = "Blips N Chitz";
+// const char* password =  "BEER_is_g00d&stuff";
 const int lockOutput = 12;
-const int lockInput = 13;
+const int buttonPin = 25;
+const int ledPin = 27;
+const int ledConnecting = 26;
+const String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1YmU5YzM4NjRmZTlhYzMzYTNlMmY2ODQiLCJpYXQiOjE1NDMxNjkwNzl9.AtSLbRcKOZBVicBptGuxKwxQFTdGAqGNrCbmuoN_TxU";
 volatile bool serverStatus = false;
 volatile bool lockStatus = false;
 volatile bool sendPost = false;
+volatile bool waitForPost = false;
 volatile bool lastGet;
 
 void sendPOST(String input);
 char sendGET();
 
+void buttonISR() {
+  if(sendPost) return;
+  sendPost = true;
+  if(serverStatus) digitalWrite(lockOutput, LOW);
+  else digitalWrite(lockOutput, HIGH);
+  waitForPost = true;
+}
+
 void setup() {
 
   pinMode(lockOutput, OUTPUT);
-  pinMode(lockInput, INPUT);
+  digitalWrite(ledPin, LOW);
+  pinMode(ledPin, OUTPUT);
+  pinMode(ledConnecting, OUTPUT);
  
   Serial.begin(115200);
   delay(1000);
- 
+  Serial.println("Starting...");
   while (WiFi.status() != WL_CONNECTED) {
-    delay(10000);
+    digitalWrite(ledConnecting, HIGH);
     Serial.println("Connecting to WiFi..");
     WiFi.begin(ssid, password);
+    delay(10000);
+    digitalWrite(ledConnecting, LOW);
   }
+  pinMode(buttonPin, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(buttonPin), buttonISR, FALLING);
 
   Serial.println("Connected to the WiFi network");
   sendPOST("{\"userid\": \"5bd603af9dfa7d068ceb70dd\",\"lockid\": \"5bd603af9dfa7d068ceb70dd\",\"status\": false}");
-
 }
 
 void loop() {
 
-  lastGet = serverStatus;
-  char status = sendGET();
-  Serial.println(status);
-  if(status == 't') { 
-    digitalWrite(lockOutput, HIGH);
-    serverStatus = true;
-  } else { 
-    digitalWrite(lockOutput, LOW);
-    serverStatus = false;
-  }
 
-  if(digitalRead(lockInput) == HIGH) {
-    lockStatus = true;
-  } else {
-    lockStatus = false;
-  }
+  if(WL_CONNECTED) digitalWrite(ledPin, HIGH);
+  else digitalWrite(ledPin, LOW);
 
-  Serial.println(serverStatus);
-  Serial.println(lockStatus);
-
-  if(serverStatus != lockStatus && lastGet == serverStatus) {
-    sendPost = true;
-  }
-
-  if(sendPost == true && lockStatus == false) {
+  if(sendPost == true && serverStatus == true) {
     sendPOST("{\"userid\": \"5bd603af9dfa7d068ceb70dd\",\"lockid\": \"5bd603af9dfa7d068ceb70dd\",\"status\": false}");
     sendPost = false;
   } 
-  else if (sendPost == true && lockStatus == true) {
+  else if (sendPost == true && serverStatus == false) {
     sendPOST("{\"userid\": \"5bd603af9dfa7d068ceb70dd\",\"lockid\": \"5bd603af9dfa7d068ceb70dd\",\"status\": true}");
     sendPost = false;
   }
-
   delay(1000);
+
+
+  noInterrupts();
+  if(sendPost) {
+    interrupts();
+    return;
+  }
+  lastGet = serverStatus;
+  char status = sendGET();
+  Serial.println(status);
+  if(status == 't' && !sendPost) { 
+    digitalWrite(lockOutput, HIGH);
+    serverStatus = true;
+  } 
+  else if (!sendPost) { 
+    digitalWrite(lockOutput, LOW);
+    serverStatus = false;
+  }
+  Serial.println(serverStatus);
+  interrupts();
+
 }
 
 void sendPOST(String input) {
@@ -79,7 +96,8 @@ void sendPOST(String input) {
    HTTPClient http;   
  
    http.begin("https://sdsmartlock.com/api/events"); 
-   http.addHeader("Content-Type", "application/json"); 
+   http.addHeader("Content-Type", "application/json");
+   http.addHeader("x-auth-token", token); 
  
    int httpResponseCode = http.POST(input);
  

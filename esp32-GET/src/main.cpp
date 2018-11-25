@@ -1,7 +1,7 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
  
-const char* ssid = "smartlock";
+const char* ssid = "Mhelith";
 const char* password =  "smartlock";
  
 void setup() {

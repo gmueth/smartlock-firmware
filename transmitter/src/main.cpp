@@ -24,13 +24,13 @@ void setup() {
 
 void loop() {
 
-  Serial.println(flag);
+  // Serial.println(flag);
   if(flag == 1) {
     Serial.println("Transmitting...");
     transmit();
     flag = 0;
   }
-  delay(500);
+  delay(100);
 
   digitalWrite(ledPin, state);
 }

@@ -1,6 +1,8 @@
 #include <ELECHOUSE_CC1101.h>
+// #include <Servo.h>
+
 byte buffer[100] = {0};
-const int ledPin = 6;
+const int ledPin = 4;
 int flag = 0;
 
 void setup()
@@ -29,6 +31,5 @@ void loop()
       digitalWrite(ledPin, LOW);
       flag = 0;
     }
-    
   }
 }
