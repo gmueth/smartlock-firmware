@@ -6,6 +6,7 @@ const char* password =  "smartlock";
 // const char* ssid = "Blips N Chitz";
 // const char* password =  "BEER_is_g00d&stuff";
 const int lockOutput = 12;
+const int lockInput = 13;
 const int buttonPin = 25;
 const int ledPin = 27;
 const int ledConnecting = 26;
@@ -30,6 +31,7 @@ void buttonISR() {
 void setup() {
 
   pinMode(lockOutput, OUTPUT);
+  pinMode(lockInput, INPUT);
   digitalWrite(ledPin, LOW);
   pinMode(ledPin, OUTPUT);
   pinMode(ledConnecting, OUTPUT);

@@ -30,7 +30,8 @@ void loop() {
     transmit();
     flag = 0;
   }
-  delay(100);
+  delay(1000);
+  transmit();
 
   digitalWrite(ledPin, state);
 }
