@@ -26,12 +26,12 @@ void loop() {
 
   // Serial.println(flag);
   if(flag == 1) {
-    Serial.println("Transmitting...");
+    // Serial.println("Transmitting...");
     transmit();
     flag = 0;
   }
-  delay(1000);
-  transmit();
+  delay(100);
+  // transmit();
 
   digitalWrite(ledPin, state);
 }
@@ -40,7 +40,7 @@ void buttonISR() {
   state = !state;
   flag = 1;
   // Must remove Serial.print too slow for interrupt
-  Serial.println("Interupt Triggered.");
+  // Serial.println("Interupt Triggered.");
   return;
 }
 

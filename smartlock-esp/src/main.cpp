@@ -62,10 +62,12 @@ void loop() {
   if(sendPost == true && serverStatus == true) {
     sendPOST("{\"userid\": \"5bd603af9dfa7d068ceb70dd\",\"lockid\": \"5bd603af9dfa7d068ceb70dd\",\"status\": false}");
     sendPost = false;
+    // digitalWrite(lockOutput, HIGH);
   } 
   else if (sendPost == true && serverStatus == false) {
     sendPOST("{\"userid\": \"5bd603af9dfa7d068ceb70dd\",\"lockid\": \"5bd603af9dfa7d068ceb70dd\",\"status\": true}");
     sendPost = false;
+    // digitalWrite(lockOutput, LOW);
   }
   delay(1000);
 
