@@ -59,11 +59,11 @@ void loop() {
     else lock();
   }
 
-  if(waitForPost) {
+  // if(waitForPost) {
 
-    delay(5000);
-    waitForPost = false;
-  }
+  //   delay(5000);
+  //   waitForPost = false;
+  // }
 
   if(digitalRead(wifiInput) == HIGH && !waitForPost) {
     unlock();
@@ -81,7 +81,7 @@ void buttonISR() {
 }
 
 void unlock() {
-    servo.write(180);
+    servo.write(100);
     digitalWrite(wifiOutput, HIGH);
     digitalWrite(ledPin, HIGH);
     locked = false;

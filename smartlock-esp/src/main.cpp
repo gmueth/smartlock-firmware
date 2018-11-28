@@ -16,6 +16,7 @@ volatile bool lockStatus = false;
 volatile bool sendPost = false;
 volatile bool waitForPost = false;
 volatile bool lastGet;
+volatile bool webChange = false;
 
 void sendPOST(String input);
 char sendGET();
@@ -55,6 +56,14 @@ void setup() {
 
 void loop() {
 
+  if(digitalRead(lockInput) && !serverStatus && !sendPost && !webChange) {
+    sendPOST("{\"userid\": \"5bd603af9dfa7d068ceb70dd\",\"lockid\": \"5bd603af9dfa7d068ceb70dd\",\"status\": true}");
+    delay(5000);
+    } 
+  else if (!digitalRead(lockInput) && serverStatus && !sendPost && !webChange) {
+    sendPOST("{\"userid\": \"5bd603af9dfa7d068ceb70dd\",\"lockid\": \"5bd603af9dfa7d068ceb70dd\",\"status\": false}");
+    delay(5000);
+  }
 
   if(WL_CONNECTED) digitalWrite(ledPin, HIGH);
   else digitalWrite(ledPin, LOW);
@@ -62,14 +71,14 @@ void loop() {
   if(sendPost == true && serverStatus == true) {
     sendPOST("{\"userid\": \"5bd603af9dfa7d068ceb70dd\",\"lockid\": \"5bd603af9dfa7d068ceb70dd\",\"status\": false}");
     sendPost = false;
-    // digitalWrite(lockOutput, HIGH);
   } 
   else if (sendPost == true && serverStatus == false) {
     sendPOST("{\"userid\": \"5bd603af9dfa7d068ceb70dd\",\"lockid\": \"5bd603af9dfa7d068ceb70dd\",\"status\": true}");
     sendPost = false;
-    // digitalWrite(lockOutput, LOW);
   }
   delay(1000);
+
+  webChange = false;
 
 
   noInterrupts();
@@ -77,16 +86,19 @@ void loop() {
     interrupts();
     return;
   }
+
   lastGet = serverStatus;
   char status = sendGET();
   Serial.println(status);
   if(status == 't' && !sendPost) { 
     digitalWrite(lockOutput, HIGH);
     serverStatus = true;
+    webChange = true;
   } 
   else if (!sendPost) { 
     digitalWrite(lockOutput, LOW);
     serverStatus = false;
+    webChange = true;
   }
   Serial.println(serverStatus);
   interrupts();
